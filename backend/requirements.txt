@@ -1,0 +1,12 @@
+﻿fastapi
+uvicorn
+sqlalchemy
+pydantic
+pydantic[email]
+pydantic-settings
+joblib
+scikit-learn
+numpy
+python-jose[cryptography]
+passlib[bcrypt]
+openai>=1.3.5
