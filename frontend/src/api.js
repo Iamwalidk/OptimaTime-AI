@@ -101,20 +101,6 @@ export async function addNote({ title, body }) {
   return res.data;
 }
 
-export async function parseDayText({ text, default_duration, default_hours_until_deadline }) {
-  const res = await api.post("/ai/parse", {
-    text,
-    default_duration,
-    default_hours_until_deadline,
-  });
-  return res.data;
-}
-
-export async function chatPlanner({ message }) {
-  const res = await api.post("/ai/chat", { message });
-  return res.data;
-}
-
 let isRefreshing = false;
 let pendingRequests = [];
 

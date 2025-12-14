@@ -132,30 +132,3 @@ class NoteOut(BaseModel):
 class UnscheduledTaskOut(TaskOut):
     reason: Optional[str] = None
 
-
-class AiParseRequest(BaseModel):
-    text: str
-    default_duration: int = 60
-    default_hours_until_deadline: int = 24
-
-
-class AiParsedTask(BaseModel):
-    title: str
-    duration_minutes: int
-    deadline: datetime
-    task_type: str = "work"
-    importance: str = "medium"
-    preferred_time: str = "anytime"
-    energy: str = "medium"
-
-
-class AiParseResponse(BaseModel):
-    tasks: List[AiParsedTask]
-
-
-class AiChatRequest(BaseModel):
-    message: str
-
-
-class AiChatResponse(BaseModel):
-    reply: str

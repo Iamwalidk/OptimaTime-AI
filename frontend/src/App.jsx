@@ -18,8 +18,6 @@ import {
   refreshAccessToken,
   getNotes,
   addNote,
-  parseDayText,
-  chatPlanner,
 } from "./api";
 
 const App = () => {
@@ -38,21 +36,16 @@ const App = () => {
   const [showTasksPanel, setShowTasksPanel] = useState(false);
   const [showUnscheduledPanel, setShowUnscheduledPanel] = useState(false);
   const [showNotesPanel, setShowNotesPanel] = useState(false);
-  const [showChatPanel, setShowChatPanel] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [notes, setNotes] = useState([]);
   const [noteDraft, setNoteDraft] = useState({ title: "", body: "" });
-  const [nlText, setNlText] = useState("");
-  const [nlSuggestions, setNlSuggestions] = useState([]);
-  const [chatMessage, setChatMessage] = useState("");
-  const [chatReply, setChatReply] = useState("");
   const showToast = (text, tone = "info") => setToast({ text, tone });
   const [calendarDays, setCalendarDays] = useState([]);
 
   const anyFlyoutOpen = useMemo(
-    () => showInputPanel || showTasksPanel || showUnscheduledPanel || showNotesPanel || showChatPanel,
-    [showInputPanel, showTasksPanel, showUnscheduledPanel, showNotesPanel, showChatPanel]
+    () => showInputPanel || showTasksPanel || showUnscheduledPanel || showNotesPanel,
+    [showInputPanel, showTasksPanel, showUnscheduledPanel, showNotesPanel]
   );
 
   const flyoutWidth = anyFlyoutOpen ? 380 : 0;
@@ -264,36 +257,6 @@ const App = () => {
     }
   };
 
-  const handleParseText = async () => {
-    if (!nlText) return;
-    try {
-      const res = await withRefresh(() =>
-        parseDayText({ text: nlText, default_duration: 60, default_hours_until_deadline: 24 })
-      );
-      setNlSuggestions(res.tasks || []);
-      if ((res.tasks || []).length === 0) {
-        showToast("AI could not extract tasks; please add at least a title and deadline manually.", "error");
-      } else {
-        showToast("AI parsed suggestions from your description.", "success");
-      }
-    } catch (err) {
-      console.error("Parse failed", err);
-      const detail = err?.response?.data?.detail || err?.message || "Could not parse text.";
-      showToast(detail, "error");
-    }
-  };
-
-  const handleChat = async () => {
-    if (!chatMessage) return;
-    try {
-      const res = await withRefresh(() => chatPlanner({ message: chatMessage }));
-      setChatReply(res.reply);
-    } catch (err) {
-      console.error("Chat failed", err);
-      setChatReply("AI planner could not respond. Try again.");
-    }
-  };
-
   const initials = user?.name ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() : "";
   const pendingCount = useMemo(
     () => tasks.filter((t) => t.status === "pending" || t.status === "unscheduled").length,
@@ -373,12 +336,6 @@ const App = () => {
                 Notes
               </button>
               <button
-                className={showChatPanel ? "sidebar-btn active" : "sidebar-btn"}
-                onClick={() => setShowChatPanel((v) => !v)}
-              >
-                AI Chat
-              </button>
-              <button
                 className={darkMode ? "sidebar-btn active" : "sidebar-btn"}
                 onClick={() => setDarkMode((d) => !d)}
               >
@@ -441,64 +398,6 @@ const App = () => {
                 </div>
               </div>
             )}
-
-            <div className="nl-panel">
-              <div className="card-header">
-                <div>
-                  <p className="eyebrow">Natural language input</p>
-                  <h4>
-                    <span role="img" aria-label="sparkles">
-                      ✨
-                    </span>{" "}
-                    Describe your day
-                  </h4>
-                  <p className="muted mini">AI will suggest tasks from plain text.</p>
-                </div>
-              </div>
-              <textarea
-                rows={2}
-                value={nlText}
-                onChange={(e) => setNlText(e.target.value)}
-                placeholder="E.g., 2 hours of deep work on project X, team meeting at 3pm, study for exam tonight."
-              />
-              <div className="inline">
-                <button onClick={handleParseText} disabled={!nlText}>
-                  Parse into tasks
-                </button>
-              </div>
-              {nlSuggestions.length > 0 && (
-                <div className="nl-suggestions">
-                  <div className="muted">AI suggestions</div>
-                  {nlSuggestions.map((s, idx) => (
-                    <div key={idx} className="list-item">
-                      <div>
-                        <strong>{s.title}</strong>
-                        <p className="muted mini">
-                          {s.duration_minutes} min · deadline {new Date(s.deadline).toLocaleString()}
-                        </p>
-                      </div>
-                      <button
-                        className="ghost"
-                        onClick={() =>
-                          handleTaskCreate({
-                            title: s.title,
-                            description: "",
-                            duration_minutes: s.duration_minutes,
-                            deadline: s.deadline,
-                            task_type: s.task_type,
-                            importance: s.importance,
-                            preferred_time: s.preferred_time,
-                            energy: s.energy,
-                          })
-                        }
-                      >
-                        Add
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
 
             <div className="schedule-wrap">
               <ScheduleView
@@ -657,40 +556,6 @@ const App = () => {
               </div>
             )}
 
-            {showChatPanel && (
-              <div className="flyout">
-                <div className="flyout-header">
-                  <h4>Chat with planner</h4>
-                  <button className="icon-btn" onClick={() => setShowChatPanel(false)}>
-                    ×
-                  </button>
-                </div>
-                <div className="form-grid">
-                  <label>
-                    <span>Message</span>
-                    <textarea
-                      rows={2}
-                      value={chatMessage}
-                      onChange={(e) => setChatMessage(e.target.value)}
-                      placeholder="E.g., move study tasks after lunch"
-                    />
-                  </label>
-                  <button onClick={handleChat} disabled={!chatMessage}>
-                    Ask
-                  </button>
-                </div>
-                {chatReply && (
-                  <div className="list">
-                    <div className="list-item">
-                      <div>
-                        <strong>AI Planner</strong>
-                        <p className="muted">{chatReply}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       )}

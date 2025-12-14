@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from .config import settings
 from .database import Base, engine
-from .routers import auth, tasks, planning, feedback, notes, ai
+from .routers import auth, tasks, planning, feedback, notes
 
 Base.metadata.create_all(bind=engine)
 
@@ -40,4 +40,3 @@ app.include_router(tasks.router, prefix="/api/v1")
 app.include_router(planning.router, prefix="/api/v1")
 app.include_router(feedback.router, prefix="/api/v1")
 app.include_router(notes.router, prefix="/api/v1")
-app.include_router(ai.router, prefix="/api/v1")

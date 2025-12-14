@@ -22,9 +22,6 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     refresh_token_expire_minutes: int = 60 * 24 * 7
     refresh_cookie_secure: bool = Field(True, alias="REFRESH_COOKIE_SECURE")
-    openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
-    openai_model: str = Field(default="gpt-4.1-mini", alias="OPENAI_MODEL")
-
     class Config:
         env_file = BASE_DIR / ".env"
         case_sensitive = False
