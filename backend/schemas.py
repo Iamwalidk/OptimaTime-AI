@@ -32,7 +32,6 @@ class UserOut(BaseModel):
     last_login_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
         from_attributes = True
 
 
@@ -69,7 +68,6 @@ class TaskOut(BaseModel):
     updated_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
         from_attributes = True
 
 
@@ -109,7 +107,6 @@ class FeedbackOut(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
         from_attributes = True
 
 
@@ -125,10 +122,8 @@ class NoteOut(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
         from_attributes = True
 
 
 class UnscheduledTaskOut(TaskOut):
     reason: Optional[str] = None
-
