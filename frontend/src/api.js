@@ -10,12 +10,22 @@ const api = axios.create({
 });
 api.defaults.withCredentials = true;
 
+const authHandlers = {
+  onRefresh: null,
+  onAuthFailure: null,
+};
+
 export function setAuthToken(token) {
   if (token) {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   } else {
     delete api.defaults.headers.common["Authorization"];
   }
+}
+
+export function setAuthHandlers({ onRefresh, onAuthFailure }) {
+  authHandlers.onRefresh = onRefresh;
+  authHandlers.onAuthFailure = onAuthFailure;
 }
 
 export async function signup({ email, name, profile, password }) {
@@ -121,12 +131,15 @@ api.interceptors.response.use(
       try {
         const refreshed = await refreshAccessToken();
         setAuthToken(refreshed.access_token);
+        authHandlers.onRefresh?.(refreshed);
         pendingRequests.forEach((p) => p.resolve());
         pendingRequests = [];
         return api(originalRequest);
       } catch (err) {
         pendingRequests.forEach((p) => p.reject(err));
         pendingRequests = [];
+        setAuthToken(null);
+        authHandlers.onAuthFailure?.();
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

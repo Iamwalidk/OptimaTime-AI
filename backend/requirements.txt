@@ -1,5 +1,6 @@
-﻿fastapi
+fastapi
 uvicorn
+alembic
 sqlalchemy
 pydantic
 pydantic[email]

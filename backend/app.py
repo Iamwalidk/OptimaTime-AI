@@ -5,10 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .config import settings
-from .database import Base, engine
 from .routers import auth, tasks, planning, feedback, notes
 
-Base.metadata.create_all(bind=engine)
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(
     title=settings.app_name,
@@ -24,10 +24,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
-
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):

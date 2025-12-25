@@ -1,15 +1,24 @@
 # Secrets and local data
+.env
 backend/.env
-backend/optimatime.db
+*.db
 
 # Virtual environments and dependencies
+.venv/
+venv/
 backend/venv/
-frontend/node_modules/
+node_modules/
 
 # Python caches
 __pycache__/
+**/__pycache__/
 *.pyc
+.pytest_cache/
 
 # OS/editor junk
 .DS_Store
 Thumbs.db
+*.db
+optimatime.db
+node_modules/
+frontend/node_modules/

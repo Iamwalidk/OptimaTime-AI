@@ -1,13 +1,12 @@
-﻿import os
-from typing import List
+from __future__ import annotations
+
+from pathlib import Path
+from typing import List, Sequence
+
 import joblib
 import numpy as np
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.model_selection import train_test_split
 
-from .data_gen import generate_synthetic_dataset
-
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "priority_model.pkl")
+MODEL_PATH = Path(__file__).resolve().parent / "priority_model.pkl"
 
 USER_TYPE_MAP = {"student": 0, "worker": 1, "entrepreneur": 2}
 IMPORTANCE_MAP = {"low": 0, "medium": 1, "high": 2}
@@ -21,7 +20,6 @@ TASK_TYPE_MAP = {
 }
 PREF_TIME_MAP = {"morning": 0, "afternoon": 1, "evening": 2, "anytime": 3}
 ENERGY_MAP = {"low": 0, "medium": 1, "high": 2}
-
 
 FEATURE_ORDER = [
     "user_type",
@@ -60,46 +58,17 @@ def encode_features(
     ]
 
 
-def train_and_save_model(path: str = MODEL_PATH):
-    data = generate_synthetic_dataset(8000)
-    X = []
-    y = []
-    for row in data:
-        features = encode_features(
-            user_type=row["user_type"],
-            duration_minutes=row["duration_minutes"],
-            hours_until_deadline=row["hours_until_deadline"],
-            importance=row["importance"],
-            task_type=row["task_type"],
-            preferred_time=row["preferred_time"],
-            energy=row["energy"],
-            plan_day_of_week=row["plan_day_of_week"],
-            is_weekend=row["is_weekend"],
-        )
-        X.append(features)
-        y.append(row["priority"])
-
-    X = np.array(X)
-    y = np.array(y)
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-
-    model = GradientBoostingRegressor(random_state=42, n_estimators=200, max_depth=3)
-    model.fit(X_train, y_train)
-    score = model.score(X_test, y_test)
-    print(f"Priority model R^2 on synthetic test set: {score:.3f}")
-
-    joblib.dump(model, path)
-    print(f"Model saved to {path}")
+def load_model(path: str | Path = MODEL_PATH):
+    model_path = Path(path)
+    if not model_path.exists():
+        raise FileNotFoundError(f"Priority model artifact not found at {model_path}")
+    return joblib.load(model_path)
 
 
-def load_model(path: str = MODEL_PATH):
-    if not os.path.exists(path):
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        train_and_save_model(path)
-    return joblib.load(path)
+def predict(features: Sequence[float], *, model=None, path: str | Path = MODEL_PATH) -> float:
+    estimator = model or load_model(path)
+    payload = np.array([features], dtype=float)
+    return float(estimator.predict(payload)[0])
 
 
 def get_feature_importances(model) -> List[float]:

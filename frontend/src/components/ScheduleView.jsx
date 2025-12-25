@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 
-const HOURS = Array.from({ length: 15 }, (_, i) => i + 7); // 07 to 21
+const HOURS = Array.from({ length: 24 }, (_, i) => i); // 00 to 23
 
 const formatTime = (dt) =>
   new Date(dt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -43,7 +43,7 @@ const ScheduleView = ({
     return map;
   }, [calendarDays, schedule, planDate]);
 
-  const hoursHeight = 60; // px per hour for visual scale
+  const hoursHeight = 40; // px per hour for visual scale
 
   return (
     <div className="card">
@@ -86,7 +86,7 @@ const ScheduleView = ({
                       const start = new Date(ev.start);
                       const end = new Date(ev.end);
                       const startMinutes = start.getHours() * 60 + start.getMinutes();
-                      const top = Math.max(0, (startMinutes - 7 * 60) * (hoursHeight / 60));
+                      const top = Math.max(0, startMinutes * (hoursHeight / 60));
                       const durationMin = Math.max(30, (end - start) / 60000);
                       const height = (durationMin / 60) * hoursHeight;
                       return (
@@ -218,3 +218,4 @@ const ScheduleView = ({
 };
 
 export default ScheduleView;
+

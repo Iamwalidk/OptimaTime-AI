@@ -64,6 +64,11 @@ body {
   margin-bottom: 16px;
   gap: 12px;
   min-height: var(--topbar-height);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  box-shadow: var(--shadow);
 }
 
 .top-left {
@@ -76,8 +81,8 @@ body {
   display: inline-flex;
   flex-direction: column;
   gap: 4px;
-  padding: 6px;
-  background: #fff;
+  padding: 8px;
+  background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 10px;
   cursor: pointer;
@@ -217,6 +222,7 @@ body {
 
 .app-layout {
   position: relative;
+  padding-top: 8px;
 }
 
 .sidebar {
@@ -229,13 +235,13 @@ body {
   flex-direction: column;
   gap: 14px;
   position: fixed;
-  top: calc(var(--topbar-height) + 8px);
+  top: calc(var(--topbar-height) + 24px);
   left: 0;
-  height: calc(100vh - var(--topbar-height) - 24px);
-  width: 220px;
+  height: calc(100vh - var(--topbar-height) - 32px);
+  width: 260px;
   transform: translateX(-110%);
   transition: transform 0.2s ease;
-  z-index: 9;
+  z-index: 11;
 }
 
 .sidebar.open {
@@ -290,6 +296,7 @@ body {
   gap: 14px;
   transition: margin 0.2s ease, width 0.2s ease;
   margin: 0 auto;
+  margin-top: 8px;
 }
 
 .toolbar {
@@ -324,7 +331,7 @@ body {
 .flyouts {
   position: fixed;
   right: 20px;
-  top: calc(var(--topbar-height) + 10px);
+  top: calc(var(--topbar-height) + 20px);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -342,6 +349,7 @@ body {
   box-shadow: var(--shadow);
   padding: 12px;
   animation: slideIn 0.2s ease;
+  margin-top: 8px;
 }
 
 .flyout-header {
@@ -495,6 +503,14 @@ button.idle {
   background: #2f3540;
   color: #9ca3af;
   box-shadow: none;
+}
+
+:root.dark input,
+:root.dark select,
+:root.dark textarea {
+  background: var(--panel);
+  color: var(--text);
+  border-color: var(--border);
 }
 
 .inline {
@@ -712,7 +728,7 @@ button.idle {
   border-radius: 12px;
   overflow: hidden;
   position: relative;
-  min-height: 900px;
+  min-height: 1200px;
 }
 
 .week-day-header {
@@ -885,4 +901,9 @@ button.idle {
   font-size: 12px;
   color: var(--muted);
 }
-
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 10;
+}

@@ -15,6 +15,16 @@ security = HTTPBearer(auto_error=False)
 logger = logging.getLogger(__name__)
 
 
+def _require_jwt_secret() -> str:
+    secret = settings.jwt_secret
+    if not secret:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="JWT_SECRET is not configured",
+        )
+    return secret
+
+
 def get_db():
     db = SessionLocal()
     try:
@@ -24,10 +34,11 @@ def get_db():
 
 
 def _create_token(data: dict, expires_minutes: int) -> str:
+    secret = _require_jwt_secret()
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=expires_minutes)
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+    return jwt.encode(to_encode, secret, algorithm=settings.jwt_algorithm)
 
 
 def create_access_token(user: User) -> str:
@@ -51,8 +62,9 @@ def create_refresh_token(user: User) -> str:
 
 
 def _decode_token(token: str) -> dict:
+    secret = _require_jwt_secret()
     try:
-        return jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        return jwt.decode(token, secret, algorithms=[settings.jwt_algorithm])
     except JWTError as exc:
         logger.exception("JWT decode failed")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token") from exc

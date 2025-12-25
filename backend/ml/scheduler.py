@@ -130,8 +130,9 @@ def schedule_day(
     feedback: Optional[List[Any]] = None,
     start_hour: int = 8,
     end_hour: int = 22,
+    model=None,
 ):
-    model = load_model()
+    model = model or load_model()
     feature_importances = get_feature_importances(model)
     top_features = list(np.argsort(feature_importances)[::-1][:3]) if feature_importances else []
     model_confidence = float(np.sum(feature_importances[:3])) if feature_importances else None
