@@ -1,7 +1,7 @@
 from datetime import datetime, date
 from typing import Optional, List, Literal
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from .models import UserProfile, TaskStatus
 
@@ -31,8 +31,7 @@ class UserOut(BaseModel):
     created_at: Optional[datetime] = None
     last_login_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AuthResponse(BaseModel):
@@ -67,8 +66,7 @@ class TaskOut(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PlanRequest(BaseModel):
@@ -106,8 +104,7 @@ class FeedbackOut(BaseModel):
     note: Optional[str]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class NoteCreate(BaseModel):
@@ -121,8 +118,7 @@ class NoteOut(BaseModel):
     body: Optional[str]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UnscheduledTaskOut(TaskOut):
