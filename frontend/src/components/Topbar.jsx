@@ -1,18 +1,13 @@
 import React from "react";
 
-const Topbar = ({ user, initials, onToggleSidebar, onLogout }) => {
+const Topbar = ({ user, initials, onLogout }) => {
   return (
     <header className="topbar">
       <div className="top-left">
-        {user && (
-          <button className="hamburger" onClick={onToggleSidebar}>
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-        )}
         <div className="brand-block">
-          <div className="brand">OptimaTime AI</div>
+          <div className="brand">
+            OptimaTime <span className="brand-pill">AI</span>
+          </div>
           <div className="brand-sub">Powered by a trained priority model + adaptive scheduling.</div>
         </div>
       </div>

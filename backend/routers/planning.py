@@ -1,5 +1,4 @@
 from datetime import datetime, date
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -145,6 +144,15 @@ def generate_plan(plan_req: schemas.PlanRequest, db: Session = Depends(get_db), 
         if t:
             unscheduled_schema.append(t)
 
+    unscheduled_reasons = {u["id"]: u.get("reason") for u in unscheduled}
+    unscheduled_out = []
+    for t in unscheduled_schema:
+        unscheduled_out.append(
+            schemas.UnscheduledTaskOut.from_orm(t).copy(
+                update={"reason": unscheduled_reasons.get(t.id)}
+            )
+        )
+
     scheduled_out = [
         schemas.ScheduledTaskOut(**s, plan_item_id=item_id) for s, item_id in plan_items_map
     ]
@@ -153,10 +161,7 @@ def generate_plan(plan_req: schemas.PlanRequest, db: Session = Depends(get_db), 
         model_version=plan.model_version,
         model_confidence=model_confidence,
         scheduled=scheduled_out,
-        unscheduled=[
-            schemas.UnscheduledTaskOut.from_orm(t).copy(update={"reason": next((u.get("reason") for u in unscheduled if u["id"] == t.id), None)})
-            for t in unscheduled_schema
-        ],
+        unscheduled=unscheduled_out,
     )
 
 

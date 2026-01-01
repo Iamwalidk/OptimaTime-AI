@@ -3,7 +3,6 @@ __pycache__/
 *.pyc
 .venv/
 venv/
-backend/venv/
 
 # Env/secrets
 .env
@@ -11,9 +10,7 @@ backend/.env
 
 # DB
 *.db
-optimatime.db
 
 # Node
 node_modules/
-frontend/node_modules/
 frontend/dist/

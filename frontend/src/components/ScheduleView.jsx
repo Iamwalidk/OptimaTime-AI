@@ -52,7 +52,7 @@ const ScheduleView = ({
           <p className="eyebrow">AI Planner</p>
           <h3>
             <span role="img" aria-label="ai">
-              🤖
+              AI
             </span>{" "}
             Week view
           </h3>
@@ -89,11 +89,17 @@ const ScheduleView = ({
                       const top = Math.max(0, startMinutes * (hoursHeight / 60));
                       const durationMin = Math.max(30, (end - start) / 60000);
                       const height = (durationMin / 60) * hoursHeight;
+                      const isCompact = height < 56;
                       return (
-                        <div key={ev.plan_item_id || `${ev.task_id}-${ev.start}`} className="event-card" style={{ top, height }}>
+                        <div
+                          key={ev.plan_item_id || `${ev.task_id}-${ev.start}`}
+                          className={`event-card${isCompact ? " compact" : ""}`}
+                          style={{ top, height }}
+                        >
                           <button
                             className="reason-btn"
                             title="Details & AI reasoning"
+                            aria-label="Details and AI reasoning"
                             onClick={() => {
                               setOpenEvent(ev);
                               setModalEdit({
@@ -102,7 +108,7 @@ const ScheduleView = ({
                               });
                             }}
                           >
-                            ℹ️
+                            i
                           </button>
                           <div className="event-title">{ev.title}</div>
                           <div className="event-time">
@@ -125,7 +131,7 @@ const ScheduleView = ({
             <p className="eyebrow">Unscheduled by AI</p>
             <h4>
               <span role="img" aria-label="warning">
-                ⚠️
+                !
               </span>{" "}
               {unscheduled.length} tasks
             </h4>
@@ -153,12 +159,12 @@ const ScheduleView = ({
                 <div className="eyebrow">Task details</div>
                 <h3>{openEvent.title}</h3>
                 <p className="muted">
-                  {formatTime(openEvent.start)} – {formatTime(openEvent.end)} ·{" "}
+                  {formatTime(openEvent.start)} - {formatTime(openEvent.end)} |{" "}
                   {new Date(openEvent.start).toLocaleDateString()}
                 </p>
               </div>
               <button className="icon-btn" onClick={() => setOpenEvent(null)}>
-                ×
+                x
               </button>
             </div>
 
@@ -168,7 +174,7 @@ const ScheduleView = ({
               {openEvent.llm_explanation && <p className="muted mini">{openEvent.llm_explanation}</p>}
             </div>
 
-            <div className="inline mini" style={{ marginTop: "10px" }}>
+            <div className="inline mini" style={{ marginTop: "var(--space-sm)" }}>
               <button className="ghost" onClick={() => onFeedback({ taskId: openEvent.task_id, outcome: 1 })}>
                 Prefer earlier
               </button>
@@ -178,7 +184,7 @@ const ScheduleView = ({
             </div>
 
             {openEvent.plan_item_id && (
-              <div className="edit-panel" style={{ marginTop: "12px" }}>
+              <div className="edit-panel" style={{ marginTop: "var(--space-md)" }}>
                 <label>
                   <span>Start</span>
                   <input

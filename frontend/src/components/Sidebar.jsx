@@ -21,8 +21,13 @@ const Sidebar = ({
   return (
     <>
       {showSidebar && <div className="sidebar-overlay" onClick={onToggleSidebar}></div>}
-      <aside className={`sidebar ${showSidebar ? "open" : ""}`}>
-        <div className="sidebar-brand">Tools</div>
+      <aside id="app-sidebar" className={`sidebar ${showSidebar ? "open" : ""}`}>
+        <div className="sidebar-header">
+          <div className="sidebar-brand">Tools</div>
+          <button className="sidebar-close" onClick={onToggleSidebar} aria-label="Close menu">
+            x
+          </button>
+        </div>
         <div className="sidebar-user">
           <div className="avatar">{initials || "U"}</div>
           <div>

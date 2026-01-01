@@ -2,8 +2,10 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import LoginForm from "./components/LoginForm";
 import NotesPanel from "./components/NotesPanel";
 import Sidebar from "./components/Sidebar";
+import SidebarToggleButton from "./components/SidebarToggleButton";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
+import Toast from "./components/Toast";
 import Topbar from "./components/Topbar";
 import ScheduleView from "./components/ScheduleView";
 import { useAuth } from "./hooks/useAuth";
@@ -11,8 +13,11 @@ import { useNotes } from "./hooks/useNotes";
 import { usePlanning } from "./hooks/usePlanning";
 import { useTasks } from "./hooks/useTasks";
 
+const TOAST_DURATION_MS = 3500;
+const TOAST_EXIT_MS = 200;
+
 const App = () => {
-  const [toast, setToast] = useState({ text: "", tone: "info" });
+  const [toast, setToast] = useState({ text: "", tone: "info", id: 0, closing: false });
   const [darkMode, setDarkMode] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showInputPanel, setShowInputPanel] = useState(false);
@@ -20,7 +25,13 @@ const App = () => {
   const [showUnscheduledPanel, setShowUnscheduledPanel] = useState(false);
   const [showNotesPanel, setShowNotesPanel] = useState(false);
 
-  const showToast = useCallback((text, tone = "info") => setToast({ text, tone }), []);
+  const showToast = useCallback((text, tone = "info") => {
+    setToast({ text, tone, id: Date.now(), closing: false });
+  }, []);
+
+  const closeToast = useCallback(() => {
+    setToast((prev) => (prev.text ? { ...prev, closing: true } : prev));
+  }, []);
 
   const closeFlyouts = useCallback(() => {
     setShowInputPanel(false);
@@ -51,12 +62,39 @@ const App = () => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
+  useEffect(() => {
+    if (!showSidebar) return;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setShowSidebar(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showSidebar]);
+
+  useEffect(() => {
+    if (!toast.text) return;
+    const autoTimer = setTimeout(() => {
+      setToast((prev) => (prev.text ? { ...prev, closing: true } : prev));
+    }, TOAST_DURATION_MS);
+    return () => clearTimeout(autoTimer);
+  }, [toast.id, toast.text]);
+
+  useEffect(() => {
+    if (!toast.closing) return;
+    const exitTimer = setTimeout(() => {
+      setToast({ text: "", tone: "info", id: 0, closing: false });
+    }, TOAST_EXIT_MS);
+    return () => clearTimeout(exitTimer);
+  }, [toast.closing]);
+
   const anyFlyoutOpen = useMemo(
     () => showInputPanel || showTasksPanel || showUnscheduledPanel || showNotesPanel,
     [showInputPanel, showTasksPanel, showUnscheduledPanel, showNotesPanel]
   );
   const flyoutWidth = anyFlyoutOpen ? 380 : 0;
-  const sidebarWidth = showSidebar ? 240 : 0;
+  const sidebarWidth = showSidebar ? 260 : 0;
 
   const initials = user?.name ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() : "";
   const pendingCount = useMemo(
@@ -69,13 +107,14 @@ const App = () => {
       <Topbar
         user={user}
         initials={initials}
-        onToggleSidebar={() => setShowSidebar((v) => !v)}
         onLogout={() => {
           logout();
           closeFlyouts();
           setShowSidebar(false);
         }}
       />
+
+      {user && <SidebarToggleButton isOpen={showSidebar} onToggle={() => setShowSidebar((v) => !v)} />}
 
       {!user && (
         <section className="auth-wrapper">
@@ -283,7 +322,7 @@ const App = () => {
         </div>
       )}
 
-      {toast.text && <div className={`toast ${toast.tone}`}>{toast.text}</div>}
+      <Toast toast={toast} onClose={closeToast} />
     </div>
   );
 };
