@@ -133,6 +133,7 @@ def generate_schedule(
     feedback: Optional[Sequence[Any]] = None,
     start_hour: int = 8,
     end_hour: int = 22,
+    occupied: Optional[Sequence[Tuple[datetime, datetime]]] = None,
 ) -> Tuple[List[Dict[str, Any]], List[TaskDict], Optional[float]]:
     model = get_priority_model()
     scheduled, unscheduled, model_confidence = schedule_day(
@@ -142,6 +143,7 @@ def generate_schedule(
         feedback=feedback,
         start_hour=start_hour,
         end_hour=end_hour,
+        occupied_intervals=occupied,
         model=model,
     )
     feature_importances = get_feature_importances(model)

@@ -60,6 +60,11 @@ export async function getTasks() {
   return res.data;
 }
 
+export async function deleteTask(taskId) {
+  const res = await api.delete(`/tasks/${taskId}`);
+  return res.data;
+}
+
 export async function generatePlan(dateString) {
   const res = await api.post("/planning/plan", {
     date: dateString,

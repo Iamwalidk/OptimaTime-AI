@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { createTask, getTasks } from "../api";
+import { createTask, deleteTask, getTasks } from "../api";
 
 export function useTasks({ user, showToast }) {
   const [tasks, setTasks] = useState([]);
@@ -40,9 +40,27 @@ export function useTasks({ user, showToast }) {
     [user, refreshTasks, showToast]
   );
 
+  const handleTaskDelete = useCallback(
+    async (taskId) => {
+      if (!user) return;
+      setTasksLoading(true);
+      try {
+        await deleteTask(taskId);
+        await refreshTasks();
+        showToast?.("Task removed from backlog.", "success");
+      } catch (err) {
+        console.error("Task delete failed", err);
+        showToast?.("Could not remove task. Please try again.", "error");
+      } finally {
+        setTasksLoading(false);
+      }
+    },
+    [user, refreshTasks, showToast]
+  );
+
   useEffect(() => {
     refreshTasks();
   }, [refreshTasks]);
 
-  return { tasks, tasksLoading, refreshTasks, handleTaskCreate };
+  return { tasks, tasksLoading, refreshTasks, handleTaskCreate, handleTaskDelete };
 }

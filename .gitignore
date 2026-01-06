@@ -14,3 +14,8 @@ backend/.env
 # Node
 node_modules/
 frontend/dist/
+__pycache__/ 
+*.pyc 
+backend/alembic.ini 
+__pycache__/ 
+*.pyc 

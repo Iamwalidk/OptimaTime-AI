@@ -130,6 +130,7 @@ class PlanItem(Base):
     end_datetime = Column(DateTime, nullable=False)
     explanation = Column(Text, nullable=True)
     position = Column(Integer, default=0, nullable=False)
+    source = Column(String, default="ai", nullable=False)
 
     plan = relationship("Plan", back_populates="items")
     task = relationship("Task", back_populates="plan_items")

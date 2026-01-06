@@ -48,7 +48,7 @@ const App = () => {
     showToast,
   });
 
-  const { tasks, tasksLoading, refreshTasks, handleTaskCreate } = useTasks({ user, showToast });
+  const { tasks, tasksLoading, refreshTasks, handleTaskCreate, handleTaskDelete } = useTasks({ user, showToast });
   const planning = usePlanning({ user, showToast, refreshTasks });
   const notes = useNotes({ user, showToast });
 
@@ -303,6 +303,20 @@ const App = () => {
                         <strong>{t.title}</strong>
                         <p className="muted mini">Deadline {new Date(t.deadline).toLocaleString()}</p>
                         {t.reason && <p className="muted mini">Reason: {t.reason}</p>}
+                      </div>
+                      <div className="inline">
+                        <button
+                          className="ghost mini"
+                          onClick={async () => {
+                            if (!window.confirm(`Remove "${t.title}" from your backlog?`)) {
+                              return;
+                            }
+                            await handleTaskDelete(t.id);
+                            await planning.refreshPlanAndCalendar();
+                          }}
+                        >
+                          Remove
+                        </button>
                       </div>
                     </div>
                   ))}
