@@ -1,21 +1,32 @@
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
 .venv/
 venv/
-
-# Env/secrets
 .env
-backend/.env
-
-# DB
+.env.*
+!.env.example
+!**/.env.example
 *.db
+
+# Tests/coverage/cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+coverage/
+.coverage
+.coverage.*
+
+# Logs
+*.log
 
 # Node
 node_modules/
-frontend/dist/
-__pycache__/ 
-*.pyc 
-backend/alembic.ini 
-__pycache__/ 
-*.pyc 
+dist/
+build/
+
+# OS junk
+.DS_Store
+Thumbs.db
+Thumb.db
