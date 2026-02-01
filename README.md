@@ -86,6 +86,7 @@ Auth correctness:
 3) Confirm you see “Invalid credentials” and remain on the login screen (no sidebar/tools).
 4) Open DevTools > Application > Cookies for `http://localhost:8000` and confirm no new `refresh_token` cookie was set.
 5) Login with the correct password and confirm the app shell renders.
+6) Test in normal window where you were logged in: try login with wrong password -> should log you out.
 
 UI:
 1) Open the Tools sidebar on mobile width (or narrow the window).

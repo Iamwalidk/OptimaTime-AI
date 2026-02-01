@@ -225,18 +225,6 @@ textarea {
   transition: transform var(--transition-fast), opacity var(--transition-fast);
 }
 
-.sidebar-toggle.open .sidebar-toggle-icon span:nth-child(1) {
-  transform: translateY(var(--space-1)) rotate(45deg);
-}
-
-.sidebar-toggle.open .sidebar-toggle-icon span:nth-child(2) {
-  opacity: 0;
-}
-
-.sidebar-toggle.open .sidebar-toggle-icon span:nth-child(3) {
-  transform: translateY(calc(var(--space-1) * -1)) rotate(-45deg);
-}
-
 .sidebar-toggle:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--accent-soft);
