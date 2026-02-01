@@ -43,6 +43,9 @@ export function useAuth({ onSessionExpired, showToast }) {
         showToast?.(mode === "login" ? "Logged in." : "Welcome to OptimaTime AI.", "success");
       } catch (err) {
         console.error("Auth failed", err);
+        setAuthToken(null);
+        setToken(null);
+        setUser(null);
         showToast?.(
           err?.response?.data?.detail || err?.message || "Unable to sign up/login. Please try again.",
           "error"

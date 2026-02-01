@@ -20,24 +20,43 @@ A task planner that combines a small ML scoring model with heuristic scheduling 
 - The priority model is trained on synthetic data and may not reflect real user preferences without retraining.
 - Scheduling is heuristic and greedy, so it can leave tasks unscheduled or place them suboptimally.
 - Time is discretized into 30-minute slots; very short or irregular tasks are approximated.
-- Refresh cookies are always marked Secure in code, so local HTTP refresh may not work without HTTPS.
+- Refresh cookies default to Secure; set `REFRESH_COOKIE_SECURE=false` in `backend/.env` for local HTTP.
 
 ## Reproducibility
-- Backend deps: `pip install -r backend/requirements.txt` (no vendored dependencies in the repo).
+- Backend deps: `pip install -r requirements.txt` (no vendored dependencies in the repo).
 - Frontend deps: `npm install` using `frontend/package.json` and `frontend/package-lock.json`.
 - Configure env: copy `backend/.env.example` to `backend/.env` and set `JWT_SECRET`.
-- If the model artifact is missing, regenerate with `python backend/ml/train_priority_model.py`.
+- Database default: `optimatime.db` in the project root (set `DATABASE_URL` to override).
+- If the model artifact is missing, it will auto-train on first use (or run `python backend/ml/train_priority_model.py`).
 - Run migrations: `python -m alembic upgrade head`.
 
 ## Local setup (dev)
 - Copy `backend/.env.example` to `backend/.env` and set `JWT_SECRET` (64+ chars).
-- Set `DATABASE_URL=sqlite:///./optimatime.db` in `backend/.env`.
-- Optional reset: delete `optimatime.db` to start clean.
+- Optional reset: delete `optimatime.db` in the project root to start clean.
 - Run migrations (use venv python): `python -m alembic upgrade head`.
 - Start backend: `python -m uvicorn backend.app:app --reload`.
 - Start frontend: `cd frontend && npm install && npm run dev`.
 - Open `http://localhost:8000/api/docs` for a quick API check.
 - Optional: rebuild the priority model with `python backend/ml/train_priority_model.py`.
+
+## Windows quickstart (PowerShell)
+Backend:
+```powershell
+cd <project_root>
+py -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
+python -m alembic upgrade head
+python -m uvicorn backend.app:app --reload
+```
+
+Frontend:
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+Node.js LTS (20/22) recommended if Node 24 causes issues.
 
 ## Backend setup
 ```bash
@@ -45,8 +64,9 @@ python -m venv .venv
 # Windows (cmd): .venv\Scripts\activate
 # Windows (PowerShell): .venv\Scripts\Activate.ps1
 # macOS/Linux: source .venv/bin/activate
-python -m pip install -r backend/requirements.txt
+python -m pip install -r requirements.txt
 python -m alembic upgrade head
+python backend\ml\train_priority_model.py
 python -m uvicorn backend.app:app --reload
 ```
 Backend runs on http://localhost:8000
@@ -58,6 +78,18 @@ npm install
 npm run dev
 ```
 Frontend runs on http://localhost:5173
+
+## Manual verification checklist (Windows)
+Auth correctness:
+1) In a private/incognito window, open `http://localhost:5173`.
+2) Attempt login with a valid email and a wrong password.
+3) Confirm you see “Invalid credentials” and remain on the login screen (no sidebar/tools).
+4) Open DevTools > Application > Cookies for `http://localhost:8000` and confirm no new `refresh_token` cookie was set.
+5) Login with the correct password and confirm the app shell renders.
+
+UI:
+1) Open the Tools sidebar on mobile width (or narrow the window).
+2) Confirm there is only one close icon (the regular X in the panel header).
 
 ## API (v1)
 - `POST /api/v1/auth/signup` -> returns JWT + user

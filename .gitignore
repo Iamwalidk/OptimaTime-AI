@@ -1,35 +1,4 @@
-# Python
-__pycache__/
-*.py[cod]
 .venv/
-venv/
+frontend/node_modules/
 .env
-.env.*
-!.env.example
-!**/.env.example
-*.db
-
-# Tests/coverage/cache
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.cache/
-coverage/
-.coverage
-.coverage.*
-
-# Logs
-*.log
-
-# Node
-node_modules/
-dist/
-build/
-
-# OS junk
-.DS_Store
-Thumbs.db
-Thumb.db
-
-THESIS_SUBMISSION/
-THESIS_SUBMISSION.zip
+backend/.env

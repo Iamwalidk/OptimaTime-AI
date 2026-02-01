@@ -70,7 +70,7 @@ class UserSettings(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
     working_hours_start = Column(String, default="08:00", nullable=False)
     working_hours_end = Column(String, default="18:00", nullable=False)
-    work_days_mask = Column(String, default="1111100", nullable=False)  # Mon-Fri
+    work_days_mask = Column(String, default="1111111", nullable=False)  # Mon-Sun
     default_planning_horizon_hours = Column(Integer, default=72, nullable=False)
     notifications_enabled = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)

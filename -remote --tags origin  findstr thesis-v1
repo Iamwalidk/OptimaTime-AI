@@ -1,0 +1,5 @@
+[33m5af4703[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;33mtag: [m[1;33mthesis-v1[m[33m, [m[1;31morigin/main[m[33m)[m chore: thesis-safe docs and ignore rules
+[33m9c43d31[m Improve planning and learning; add task delete; cap feedback; add tests
+[33m34e0c94[m chore: release hygiene + checklist + smoke scripts
+[33m1141b3b[m fix: pydantic v2 config + db path robustness
+[33m2309cff[m fix: pydantic v2 from_attributes config
