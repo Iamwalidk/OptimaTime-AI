@@ -38,17 +38,6 @@ def _normalize_dt(value: datetime) -> datetime:
     return value
 
 
-def _get_or_create_settings(db: Session, user_id: int) -> models.UserSettings:
-    settings = db.query(models.UserSettings).filter(models.UserSettings.user_id == user_id).first()
-    if settings:
-        return settings
-    settings = models.UserSettings(user_id=user_id)
-    db.add(settings)
-    db.commit()
-    db.refresh(settings)
-    return settings
-
-
 def _importance_rank(importance: str) -> int:
     return {"high": 0, "medium": 1, "low": 2}.get(importance, 1)
 
@@ -139,14 +128,24 @@ def _generate_plan_impl(plan_req: schemas.PlanRequest, db: Session, user):
     start_of_day = datetime.combine(plan_req.date, time.min)
     lookahead_end = start_of_day + timedelta(days=LOOKAHEAD_DAYS)
 
-    settings = _get_or_create_settings(db, user.id)
+    settings = db.query(models.UserSettings).filter(models.UserSettings.user_id == user.id).first()
+    if not settings:
+        settings = models.UserSettings(user_id=user.id)
+        db.add(settings)
+        db.commit()
+        db.refresh(settings)
     start_hour = _parse_hour_str(settings.working_hours_start, 8)
     end_hour = _parse_hour_str(settings.working_hours_end, 22)
     if end_hour <= start_hour:
         end_hour = min(start_hour + 12, 23)
+    if not _is_workday(plan_req.date, settings.work_days_mask):
+        raise HTTPException(
+            status_code=400,
+            detail="Selected date is outside your working days. Update your working hours in settings.",
+        )
 
-    horizon_dates = [plan_req.date]
-    for offset in range(1, 7):
+    horizon_dates = []
+    for offset in range(7):
         plan_date = plan_req.date + timedelta(days=offset)
         if _is_workday(plan_date, settings.work_days_mask):
             horizon_dates.append(plan_date)

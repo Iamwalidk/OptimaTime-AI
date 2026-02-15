@@ -1,5 +1,23 @@
+# Python
 .venv/
-frontend/node_modules/
+__pycache__/
+*.py[cod]
+*.pkl
+
+# Env files
 .env
 backend/.env
-.env
+frontend/.env
+
+# Node
+frontend/node_modules/
+
+# Databases / local artifacts
+*.db
+optimatime.db
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

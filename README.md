@@ -1,100 +1,124 @@
-# OptimaTime AI
+# OptimaTime AI  
+**Hybrid ML-Assisted Task Scheduling System**
 
-A task planner that combines a small ML scoring model with heuristic scheduling rules to propose daily schedules.
+OptimaTime AI is a lightweight intelligent planner that combines machine learning–based task prioritization with a deterministic heuristic scheduling engine.
 
-## Highlights
-- FastAPI backend with JWT auth, Alembic migrations, and a REST API.
-- GradientBoostingRegressor trained on synthetic data to score tasks by duration, deadline, importance, profile, and preferences.
-- Heuristic scheduler that assigns 30-minute slots using deadline/time-window/energy penalties, plus a small local adjustment pass.
-- Feedback logging that biases future scheduling decisions (no online retraining).
-- React/Vite UI for tasks, plans, and feedback.
+The system separates statistical learning (priority estimation) from rule-based optimization (time allocation) to ensure modularity, interpretability, and reproducibility.
 
-## What it is / What it isn't
-- What it is: A lightweight, ML-assisted planner that scores tasks and schedules them with explicit rules and constraints.
-- What it is: A deterministic (seeded) planner over 30-minute slots with template-based explanations.
-- What it isn't: A formal optimizer (no MILP/CP-SAT) or guaranteed optimal scheduler.
-- What it isn't: An online learning system; feedback only adds runtime bias and does not retrain the model.
-- What it isn't: An LLM-based planner; explanations are generated from rules and feature importance labels.
+---
+
+## Architecture
+
+React Frontend → FastAPI Backend → ML Priority Model → Heuristic Scheduler → SQLite Database
+
+**Tech Stack**
+- Python, FastAPI
+- Scikit-learn (GradientBoostingRegressor)
+- SQLite + Alembic migrations
+- JWT authentication
+- React + Vite
+
+---
+
+## ML Pipeline
+
+**Feature Engineering**
+- Task duration
+- Deadline proximity
+- Importance level
+- User profile encoding
+- Preference-weighted signals
+
+**Model**
+- GradientBoostingRegressor (Scikit-learn)
+- Trained on structured synthetic dataset
+- Seeded for reproducibility
+
+**Output**
+- Continuous priority score
+- Used as input to the deterministic scheduling engine
+
+---
+
+## Scheduling Engine
+
+- 30-minute discrete time slots
+- Deadline penalties
+- Time window constraints
+- Energy-level penalties
+- Conflict detection
+- Small local adjustment pass
+
+The scheduler is heuristic and deterministic — not a formal optimizer (no MILP / CP-SAT).
+
+---
+
+## Engineering Decisions
+
+- Chose heuristic scheduling over MILP to keep the system lightweight and explainable.
+- Separated ML scoring from scheduling logic to preserve modularity.
+- Used synthetic data for controlled experimentation prior to real user data collection.
+- Designed the system as a hybrid approach: statistical learning + rule-based allocation.
+
+---
 
 ## Limitations
-- The priority model is trained on synthetic data and may not reflect real user preferences without retraining.
-- Scheduling is heuristic and greedy, so it can leave tasks unscheduled or place them suboptimally.
-- Time is discretized into 30-minute slots; very short or irregular tasks are approximated.
-- Refresh cookies default to Secure; set `REFRESH_COOKIE_SECURE=false` in `backend/.env` for local HTTP.
 
-## Reproducibility
-- Backend deps: `pip install -r requirements.txt` (no vendored dependencies in the repo).
-- Frontend deps: `npm install` using `frontend/package.json` and `frontend/package-lock.json`.
-- Configure env: copy `backend/.env.example` to `backend/.env` and set `JWT_SECRET`.
-- Database default: `optimatime.db` in the project root (set `DATABASE_URL` to override).
-- If the model artifact is missing, it will auto-train on first use (or run `python backend/ml/train_priority_model.py`).
-- Run migrations: `python -m alembic upgrade head`.
+- The ML model is trained on synthetic data.
+- Scheduling is greedy and may produce suboptimal plans.
+- No online retraining (feedback biases runtime only).
+- Time resolution fixed to 30-minute slots.
 
-## Local setup (dev)
-- Copy `backend/.env.example` to `backend/.env` and set `JWT_SECRET` (64+ chars).
-- Optional reset: delete `optimatime.db` in the project root to start clean.
-- Run migrations (use venv python): `python -m alembic upgrade head`.
-- Start backend: `python -m uvicorn backend.app:app --reload`.
-- Start frontend: `cd frontend && npm install && npm run dev`.
-- Open `http://localhost:8000/api/docs` for a quick API check.
-- Optional: rebuild the priority model with `python backend/ml/train_priority_model.py`.
+---
 
-## Windows quickstart (PowerShell)
-Backend:
-```powershell
-cd <project_root>
-py -m venv .venv
-.venv\Scripts\activate
-python -m pip install -r requirements.txt
-python -m alembic upgrade head
-python -m uvicorn backend.app:app --reload
-```
+## Future Directions
 
-Frontend:
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-Node.js LTS (20/22) recommended if Node 24 causes issues.
+- Replace synthetic training data with anonymized real usage data.
+- Explore ranking-based models instead of regression.
+- Add feature importance visualization.
+- Compare heuristic scheduling with MILP baseline.
+- Experiment with reinforcement learning for adaptive scheduling.
 
-## Backend setup
+---
+
+## Local Setup
+
+### Backend
 ```bash
 python -m venv .venv
-# Windows (cmd): .venv\Scripts\activate
-# Windows (PowerShell): .venv\Scripts\Activate.ps1
-# macOS/Linux: source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m alembic upgrade head
-python backend\ml\train_priority_model.py
-python -m uvicorn backend.app:app --reload
-```
-Backend runs on http://localhost:8000
+# Activate environment (Windows)
+.venv\Scripts\activate
+# macOS/Linux
+# source .venv/bin/activate
 
-## Frontend setup
-```bash
+pip install -r backend/requirements.txt
+python -m alembic upgrade head
+python -m uvicorn backend.app:app --reload
+
+Backend runs at:
+http://localhost:8000
+
+Swagger docs:
+http://localhost:8000/api/docs
+
+
+### Frontend
+
 cd frontend
 npm install
 npm run dev
-```
-Frontend runs on http://localhost:5173
 
-## Manual verification checklist (Windows)
-Auth correctness:
-1) In a private/incognito window, open `http://localhost:5173`.
-2) Attempt login with a valid email and a wrong password.
-3) Confirm you see “Invalid credentials” and remain on the login screen (no sidebar/tools).
-4) Open DevTools > Application > Cookies for `http://localhost:8000` and confirm no new `refresh_token` cookie was set.
-5) Login with the correct password and confirm the app shell renders.
-6) Test in normal window where you were logged in: try login with wrong password -> should log you out.
+Frontend runs at:
+http://localhost:5173
 
-UI:
-1) Open the Tools sidebar on mobile width (or narrow the window).
-2) Confirm there is only one close icon (the regular X in the panel header).
+### API (v1)
 
-## API (v1)
-- `POST /api/v1/auth/signup` -> returns JWT + user
-- `POST /api/v1/auth/login` -> returns JWT + user
-- `GET/POST /api/v1/tasks` -> list/create tasks (auth required)
-- `POST /api/v1/planning/plan` -> generate schedule for a given date
-- `GET/POST /api/v1/feedback` -> capture user schedule feedback
+POST /api/v1/auth/signup
+
+POST /api/v1/auth/login
+
+GET/POST /api/v1/tasks
+
+POST /api/v1/planning/plan
+
+GET/POST /api/v1/feedback
