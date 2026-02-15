@@ -63,12 +63,20 @@ def get_priority_model(force_reload: bool = False):
         try:
             _PRIORITY_MODEL_CACHE = load_model()
         except FileNotFoundError as exc:
-            message = (
-                f"Priority model artifact not found at {MODEL_PATH}. "
-                "Run backend/ml/train_priority_model.py to generate it."
+            logger.warning(
+                "Priority model artifact missing at %s; training a lightweight model now.",
+                MODEL_PATH,
             )
-            logger.error(message)
-            raise RuntimeError(message) from exc
+            try:
+                train_and_save_model(path=MODEL_PATH)
+            except Exception as train_exc:  # pragma: no cover - defensive
+                message = (
+                    f"Priority model artifact not found at {MODEL_PATH} and auto-training failed. "
+                    "Run backend/ml/train_priority_model.py to generate it."
+                )
+                logger.error(message)
+                raise RuntimeError(message) from train_exc
+            _PRIORITY_MODEL_CACHE = load_model()
     return _PRIORITY_MODEL_CACHE
 
 

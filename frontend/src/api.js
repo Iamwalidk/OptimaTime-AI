@@ -118,12 +118,18 @@ export async function addNote({ title, body }) {
 
 let isRefreshing = false;
 let pendingRequests = [];
+const AUTH_ENDPOINTS = ["/auth/login", "/auth/signup", "/auth/refresh", "/auth/logout"];
+
+function isAuthEndpoint(url) {
+  if (!url) return false;
+  return AUTH_ENDPOINTS.some((path) => url.includes(path));
+}
 
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint(originalRequest?.url)) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           pendingRequests.push({ resolve, reject });

@@ -114,7 +114,7 @@ const App = () => {
         }}
       />
 
-      {user && <SidebarToggleButton isOpen={showSidebar} onToggle={() => setShowSidebar((v) => !v)} />}
+      {user && !showSidebar && <SidebarToggleButton isOpen={showSidebar} onToggle={() => setShowSidebar((v) => !v)} />}
 
       {!user && (
         <section className="auth-wrapper">
